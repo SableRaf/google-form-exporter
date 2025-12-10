@@ -5,6 +5,7 @@
 node_modules/
 
 # Clasp
+.clasp.json
 .clasprc.json
 
 # Temporary build folder
