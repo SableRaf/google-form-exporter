@@ -6,3 +6,6 @@ node_modules/
 
 # Clasp
 .clasprc.json
+
+# Dist folder
+tmp/dist
