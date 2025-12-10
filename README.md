@@ -98,7 +98,8 @@ npm run push
 This command will:
 - Inject your environment variables into the code
 - Push the code to your Google Apps Script project
-- Clean up temporary files
+
+*Note: this will create a temporary `tmp/dist` folder for deployment, which is cleaned up after pushing.*
 
 ## Usage
 
