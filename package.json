@@ -1,0 +1,23 @@
+{
+  "name": "google-form-exporter",
+  "version": "1.0.0",
+  "description": "Export Google Forms to JSON and Markdown formats",
+  "scripts": {
+    "push": "node scripts/inject-env.js && clasp push",
+    "pull": "clasp pull",
+    "open": "clasp open-script",
+    "export": "npm run export:markdown && npm run export:json",
+    "export:markdown": "clasp run-function 'runExportToMarkdown'",
+    "export:json": "clasp run-function 'runExportToJson'"
+  },
+  "keywords": [
+    "google-apps-script",
+    "google-forms",
+    "export"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@google/clasp": "3.1.3"
+  }
+}
