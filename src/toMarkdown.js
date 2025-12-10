@@ -20,7 +20,7 @@ function exportFormToMarkdown(formId) {
 
   lines.push("");
 
-  var questionCounter = 1; // 
+  var questionCounter = 1;
   var sectionCounter = 0;
   var currentSection = "";
   var currentPageBreakItem = null;
