@@ -78,10 +78,7 @@ cp .clasp.json.example .clasp.json
 Edit `.clasp.json` and set the `scriptId` to your Google Apps Script project ID:
 
 ```json
-{
   "scriptId": "your_script_id_here",
-  ...
-}
 ```
 
 ### 6. Login to clasp
