@@ -7,5 +7,5 @@ node_modules/
 # Clasp
 .clasprc.json
 
-# Dist folder
-tmp/dist
+# Temporary build folder
+tmp/

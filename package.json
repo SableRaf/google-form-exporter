@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Export Google Forms to JSON and Markdown formats",
   "scripts": {
-    "push": "node scripts/inject-env.js && clasp push",
+    "push": "node scripts/inject-env.js && clasp push && node scripts/cleanup.js",
     "pull": "clasp pull",
     "open": "clasp open-script",
     "export": "npm run export:markdown && npm run export:json",
