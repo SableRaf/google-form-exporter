@@ -184,7 +184,7 @@ npm run open
 
 ## License
 
-GPL-3.0 License.
+MIT License. See [LICENSE](LICENSE) for details.
 
 ## Contributing
 
