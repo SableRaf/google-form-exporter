@@ -105,7 +105,7 @@ function saveToDrive_(fileName, content) {
   try {
     var folder = DriveApp.getFolderById(EXPORT_FOLDER_ID);
     folder.createFile(fileName, content, "text/plain");
-    Logger.log("Saved to Drive: " + fileName + " at: \n https://drive.google.com/drive/folders/" + EXPORT_FOLDER_ID);
+    Logger.log("Saved to Drive: " + fileName + " at: \nhttps://drive.google.com/drive/folders/" + EXPORT_FOLDER_ID);
   } catch (e) {
     Logger.log("Error saving to Drive: " + e.message);
   }
