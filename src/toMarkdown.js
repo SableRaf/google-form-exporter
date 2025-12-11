@@ -74,7 +74,7 @@ function exportFormToMarkdown(formId, optionalForm, optionalItems) {
     questionCounter += 1;
 
     // Question heading
-    lines.push("### Q" + questionCounter + ". " + convertToMarkdown(title));
+    lines.push("### " + questionCounter + ". " + convertToMarkdown(title));
 
     var helpText = item.getHelpText();
     if (helpText) {
