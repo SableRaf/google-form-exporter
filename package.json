@@ -4,7 +4,7 @@
   "description": "Export Google Forms to JSON and Markdown formats",
   "scripts": {
     "push": "node scripts/inject-env.js && clasp push && node scripts/cleanup.js",
-    "pull": "clasp pull",
+    "pull": "node scripts/pull-warning.js && clasp pull",
     "open": "clasp open-script"
   },
   "keywords": [
