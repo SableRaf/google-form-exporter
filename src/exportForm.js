@@ -26,12 +26,15 @@
 /**
  * Converts the Form with the given ID into a JSON object.
  *
- * @param {string} formId
+ * @param {string} formId - Google Form ID
+ * @param {FormApp.Form} optionalForm - Pre-fetched form object (optimization)
+ * @param {FormApp.Item[]} optionalItems - Pre-fetched items array (optimization)
  * @return {Object} JSON representation of the form.
  */
-function exportFormToJson(formId) {
-  var form = FormApp.openById(formId);
-  var items = form.getItems();
+function exportFormToJson(formId, optionalForm, optionalItems) {
+  // Use pre-fetched data if provided, otherwise fetch (backward compatible)
+  var form = optionalForm || FormApp.openById(formId);
+  var items = optionalItems || form.getItems();
 
   var result = {
     metadata: getFormMetadata(form),

@@ -1,12 +1,15 @@
 /**
  * Exports a Google Form to a Markdown string.
  *
- * @param {string} formId
+ * @param {string} formId - Google Form ID
+ * @param {FormApp.Form} optionalForm - Pre-fetched form object (optimization)
+ * @param {FormApp.Item[]} optionalItems - Pre-fetched items array (optimization)
  * @return {string} Markdown representation of the form.
  */
-function exportFormToMarkdown(formId) {
-  var form = FormApp.openById(formId);
-  var items = form.getItems();
+function exportFormToMarkdown(formId, optionalForm, optionalItems) {
+  // Use pre-fetched data if provided, otherwise fetch (backward compatible)
+  var form = optionalForm || FormApp.openById(formId);
+  var items = optionalItems || form.getItems();
 
   var lines = [];
 

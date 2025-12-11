@@ -32,11 +32,54 @@ function runExportToMarkdown() {
 }
 
 /**
- * Export form as JSON and Markdown
+ * Export form as JSON and Markdown (optimized to fetch form data once)
+ *
+ * This function fetches the form and items once, then passes them to both
+ * export functions to avoid redundant API calls (50% reduction: 4 calls → 2 calls)
  */
 function runExportAll() {
-  runExportToJSON();
-  runExportToMarkdown();
+  // Shared data-fetching phase - fetch once and reuse for both exports
+  var form, items;
+
+  try {
+    Logger.log("Fetching form data...");
+    form = FormApp.openById(FORM_ID);
+    Logger.log("Form title: \"" + form.getTitle() + "\"");
+    Logger.log("Fetching form items...");
+    items = form.getItems();
+  } catch (e) {
+    Logger.log("Error fetching form data: " + e.message);
+    return; // Exit early, neither export proceeds
+  }
+
+  // Export to JSON (reusing fetched data)
+  try {
+    var json = exportFormToJson(FORM_ID, form, items);
+    var stringified = JSON.stringify(json, null, 2);
+
+    Logger.log("Total items exported: " + json.count);
+    Logger.log(stringified);
+
+    var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
+    var fileName = "form_export_" + timestamp + ".json";
+
+    saveToDrive_(fileName, stringified);
+  } catch (e) {
+    Logger.log("Error exporting JSON: " + e.message);
+  }
+
+  // Export to Markdown (reusing fetched data)
+  try {
+    var md = exportFormToMarkdown(FORM_ID, form, items);
+    Logger.log(md);
+
+    var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
+    var fileName = "form_export_" + timestamp + ".md";
+
+    saveToDrive_(fileName, md);
+  } catch (e) {
+    Logger.log("Error exporting Markdown: " + e.message);
+  }
 }
 
 /**
