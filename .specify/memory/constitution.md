@@ -149,6 +149,58 @@ All changes MUST:
 - **README.md**: MUST provide complete setup and usage instructions for new users
 - **Inline comments**: MUST explain non-obvious Apps Script API behaviors and workarounds
 
+### Comments Hygiene
+- All functions MUST have JSDoc-style comments
+- Comments MUST explain "why" not just "what"
+- Comments MUST NOT contradict code behavior
+- Comments MUST NEVER behave as change logs
+- Comments should describe the current code, NOT compare it to previous versions or deleted code.
+
+Comments should describe the current code, not compare it to previous versions or deleted code.
+Bad patterns:
+
+- References to "old" functions or approaches that aren't in the codebase anymore
+- Comparisons like "50% reduction: 4 calls → 2 calls"
+- Phrases like "optimized," "improved," or "fixed" that imply there was a previous version
+- Any mention of what the code used to do or how it's changed
+
+Good pattern:
+
+- Describe what the current code does
+- Explain the current implementation
+- Focus on the present state only
+
+**Rationale**: If someone is reading the code, they only see what exists now. References to removed code create confusion and clutter. Historical context belongs in git commit messages, PRs, or changelogs—not in code comments.
+
+For example, DO NOT use comments like this:
+
+```javascript
+/**
+ * Export form as JSON and Markdown (optimized to fetch form data once)
+ *
+ * This function fetches the form and items once, then passes them to both
+ * export functions to avoid redundant API calls (50% reduction: 4 calls → 2 calls)
+ */
+function oldFunction() {
+  // This is a hack
+}
+```
+
+DO use comments like this:
+
+```javascript
+/**
+ * Export form as JSON and Markdown
+ *
+ * This function fetches the form and items, then passes them to both export functions
+ */
+function runExportAll() {
+  // Fetch form and items once
+  var form = FormApp.openById(FORM_ID);
+  ...
+}
+```
+
 ### File Naming Convention
 
 Exported files MUST use timestamps: `yyyy-MM-dd_HH-mm-ss`
