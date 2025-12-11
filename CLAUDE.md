@@ -54,7 +54,7 @@ Configuration values (script ID, form ID, folder ID) are injected from `.env` du
 
 Three main functions can be run from the Apps Script editor:
 
-1. **runExportAll()** - Exports both JSON and Markdown formats
+1. **runExportAll()** - Exports both JSON and Markdown formats (optimized to fetch form data once)
 2. **runExportToJSON()** - Exports only JSON format
 3. **runExportToMarkdown()** - Exports only Markdown format
 
@@ -62,17 +62,27 @@ Global configuration at the top of [src/Code.js](src/Code.js):
 - `FORM_ID` - The Google Form to export (injected from `.env` during deployment)
 - `EXPORT_FOLDER_ID` - Google Drive folder for exported files (injected from `.env` during deployment)
 
+#### Performance Optimization
+
+**runExportAll() optimization**: This function uses parameter-based refactoring to eliminate redundant API calls. Instead of calling `FormApp.openById()` and `form.getItems()` twice (once per export), it fetches the data once and passes it to both export functions via optional parameters. This reduces API calls by 50% (from 4 to 2) when exporting both formats.
+
+**Individual exports remain unchanged**: `runExportToJSON()` and `runExportToMarkdown()` continue to work independently, calling their respective export functions with only the form ID. The export functions use fallback logic (`||` operator) to fetch data when optional parameters are not provided, maintaining full backward compatibility.
+
 ### Core Export Modules
 
 **[src/exportForm.js](src/exportForm.js)** - JSON Export
-- `exportFormToJson(formId)` - Main entry point for JSON export
+- `exportFormToJson(formId, optionalForm, optionalItems)` - Main entry point for JSON export
+  - Accepts optional pre-fetched form object and items array for optimization
+  - Falls back to fetching data if optional parameters not provided
 - `getFormMetadata(form)` - Extracts form-level metadata (title, description, editors, etc.)
 - `itemToObject(item)` - Converts form items to JSON objects
 - Handles all form item types: TEXT, PARAGRAPH_TEXT, MULTIPLE_CHOICE, CHECKBOX, LIST, SCALE, IMAGE, PAGE_BREAK, VIDEO
 - Uses type downcasting pattern via `AS_*_ITEM` methods to access type-specific properties
 
 **[src/toMarkdown.js](src/toMarkdown.js)** - Markdown Export
-- `exportFormToMarkdown(formId)` - Main entry point for Markdown export
+- `exportFormToMarkdown(formId, optionalForm, optionalItems)` - Main entry point for Markdown export
+  - Accepts optional pre-fetched form object and items array for optimization
+  - Falls back to fetching data if optional parameters not provided
 - `convertToMarkdown(text)` - Converts Google Forms rich text (HTML-like) to Markdown
 - `renderItemBodyMarkdown(item, type, sectionMap)` - Renders different question types as Markdown
 - `buildSectionMap(items)` - Maps page break indices to section numbers for navigation
@@ -85,6 +95,31 @@ Global configuration at the top of [src/Code.js](src/Code.js):
 
 **Helper in both [src/exportForm.js](src/exportForm.js) and [src/toMarkdown.js](src/toMarkdown.js)**:
 - `snakeCaseToCamelCase(s)` - Converts SNAKE_CASE to camelCase for Apps Script method names
+
+## Coding Standards
+
+### Comments Hygiene
+- All functions must have JSDoc-style comments
+- Comments must explain "why" not just "what"
+- Comments must describe the current code state only
+- Never reference previous implementations, old functions, or deleted code
+- Avoid terms like "optimized", "improved", or "fixed" that imply historical changes
+- Historical context belongs in git commits, PRs, or changelogs, not code comments
+
+Example of good vs bad comments:
+```javascript
+// Bad: References removed code
+/**
+ * Export form (optimized to fetch form data once)
+ * 50% reduction: 4 calls → 2 calls
+ */
+
+// Good: Describes current implementation
+/**
+ * Export form as JSON and Markdown
+ * Fetches form data once and passes to both export functions
+ */
+```
 
 ## Key Design Patterns
 
@@ -149,3 +184,10 @@ Exported files use timestamps in format: `yyyy-MM-dd_HH-mm-ss`
 - Some item types may not implement all methods (e.g., `isRequired()`) - code handles this defensively
 - The "points" field in JSON is kept for compatibility but always set to 0
 - Markdown export cannot perfectly represent all form features (e.g., underline formatting is kept as HTML)
+
+## Active Technologies
+- JavaScript (ES5/ES6) - Google Apps Script V8 runtime + Google Apps Script built-in APIs (FormApp, DriveApp, Utilities) - no external dependencies (001-reduce-export-redundancy)
+- Google Drive (output files only, no data storage layer) (001-reduce-export-redundancy)
+
+## Recent Changes
+- 001-reduce-export-redundancy: Added JavaScript (ES5/ES6) - Google Apps Script V8 runtime + Google Apps Script built-in APIs (FormApp, DriveApp, Utilities) - no external dependencies
