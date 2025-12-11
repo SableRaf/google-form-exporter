@@ -31,6 +31,9 @@ function runExportToMarkdown() {
   saveToDrive_(fileName, md);
 }
 
+/**
+ * Export form as JSON and Markdown
+ */
 function runExportAll() {
   runExportToJSON();
   runExportToMarkdown();
