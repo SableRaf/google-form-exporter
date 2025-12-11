@@ -25,8 +25,8 @@ function exportFormToMarkdown(formId, optionalForm, optionalItems) {
 
   lines.push("");
 
-  var questionCounter = 1;
-  var sectionCounter = 0;
+  var questionCounter = 0;
+  var sectionCounter = 1;
   var currentSection = "";
   var currentPageBreakItem = null;
   
