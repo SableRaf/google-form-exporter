@@ -3,10 +3,8 @@ var FORM_ID = "{{FORM_ID}}";
 var EXPORT_FOLDER_ID = "{{EXPORT_FOLDER_ID}}";
 
 /**
- * Export form as JSON and Markdown (optimized to fetch form data once)
- *
- * This function fetches the form and items once, then passes them to both
- * export functions to avoid redundant API calls (50% reduction: 4 calls → 2 calls)
+ * Export form as JSON and Markdown
+ * This function fetches the form and items once, then passes them to both exporters.
  */
 function runExportAll() {
   // Shared data-fetching phase - fetch once and reuse for both exports
@@ -29,8 +27,7 @@ function runExportAll() {
     var stringified = JSON.stringify(json, null, 2);
 
     Logger.log("Total items exported: " + json.count);
-    Logger.log(stringified.split('\n').slice(0, 5).join('\n'));
-    Logger.log('[' + (stringified.split('\n').length - 5) + ' more lines...]');
+    Logger.log(stringified.split('\n').slice(0, 5).join('\n') + '\n[' + (stringified.split('\n').length - 5) + ' more lines...]');
 
     var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
     var fileName = "form_export_" + timestamp + ".json";
@@ -43,8 +40,7 @@ function runExportAll() {
   // Export to Markdown (reusing fetched data)
   try {
     var md = exportFormToMarkdown(FORM_ID, form, items);
-    Logger.log(md.split('\n').slice(0, 5).join('\n'));
-    Logger.log('[' + (md.split('\n').length - 5) + ' more lines...]');
+    Logger.log(md.split('\n').slice(0, 5).join('\n') + '\n[' + (md.split('\n').length - 5) + ' more lines...]');
 
     var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
     var fileName = "form_export_" + timestamp + ".md";
@@ -54,7 +50,6 @@ function runExportAll() {
     Logger.log("Error exporting Markdown: " + e.message);
   }
 }
-
 
 /**
  * Export form as JSON
