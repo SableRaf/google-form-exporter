@@ -1,6 +1,6 @@
 {
   "name": "google-form-exporter",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Export Google Forms to JSON and Markdown formats",
   "scripts": {
     "push": "node scripts/inject-env.js && clasp push && node scripts/cleanup.js",
