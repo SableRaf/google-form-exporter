@@ -58,8 +58,8 @@ function runExportAll() {
     var stringified = JSON.stringify(json, null, 2);
 
     Logger.log("Total items exported: " + json.count);
-    Logger.log(stringified.split('\n').slice(0, 5).join('\n') + '\n[');
-    Logger.log((stringified.split('\n').length - 5) + ' more lines]');
+    Logger.log(stringified.split('\n').slice(0, 5).join('\n'));
+    Logger.log('[' + (stringified.split('\n').length - 5) + ' more lines...]');
 
     var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
     var fileName = "form_export_" + timestamp + ".json";
@@ -72,8 +72,8 @@ function runExportAll() {
   // Export to Markdown (reusing fetched data)
   try {
     var md = exportFormToMarkdown(FORM_ID, form, items);
-    Logger.log(md.split('\n').slice(0, 5).join('\n') + '\n[');
-    Logger.log((md.split('\n').length - 5) + ' more lines]');
+    Logger.log(md.split('\n').slice(0, 5).join('\n'));
+    Logger.log('[' + (md.split('\n').length - 5) + ' more lines...]');
 
     var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
     var fileName = "form_export_" + timestamp + ".md";
