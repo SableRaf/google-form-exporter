@@ -21,11 +21,11 @@ This document breaks down the implementation of the export redundancy optimizati
 
 **Tasks**:
 
-- [ ] T001 Review current implementation in src/Code.js to understand runExportAll() orchestration
-- [ ] T002 Review current implementation in src/exportForm.js to understand JSON export logic
-- [ ] T003 Review current implementation in src/toMarkdown.js to understand Markdown export logic
-- [ ] T004 Document baseline behavior by running runExportAll() and capturing logs (note API call count)
-- [ ] T005 Create backup of current implementation for comparison testing
+- [X] T001 Review current implementation in src/Code.js to understand runExportAll() orchestration
+- [X] T002 Review current implementation in src/exportForm.js to understand JSON export logic
+- [X] T003 Review current implementation in src/toMarkdown.js to understand Markdown export logic
+- [X] T004 Document baseline behavior by running runExportAll() and capturing logs (note API call count)
+- [X] T005 Create backup of current implementation for comparison testing
 
 **Completion Criteria**:
 - ✅ All three source files reviewed and understood
@@ -48,27 +48,27 @@ This document breaks down the implementation of the export redundancy optimizati
 
 ### Refactor exportFormToJson() Function
 
-- [ ] T006 [P] [US1] Add optional parameters to exportFormToJson() signature in src/exportForm.js: (formId, optionalForm, optionalItems)
-- [ ] T007 [US1] Implement fallback logic using || operator in src/exportForm.js: form = optionalForm || FormApp.openById(formId)
-- [ ] T008 [US1] Implement fallback logic using || operator in src/exportForm.js: items = optionalItems || form.getItems()
-- [ ] T009 [US1] Verify all downstream code in exportFormToJson() uses local variables (form, items) instead of re-fetching
+- [X] T006 [P] [US1] Add optional parameters to exportFormToJson() signature in src/exportForm.js: (formId, optionalForm, optionalItems)
+- [X] T007 [US1] Implement fallback logic using || operator in src/exportForm.js: form = optionalForm || FormApp.openById(formId)
+- [X] T008 [US1] Implement fallback logic using || operator in src/exportForm.js: items = optionalItems || form.getItems()
+- [X] T009 [US1] Verify all downstream code in exportFormToJson() uses local variables (form, items) instead of re-fetching
 
 ### Refactor exportFormToMarkdown() Function
 
-- [ ] T010 [P] [US1] Add optional parameters to exportFormToMarkdown() signature in src/toMarkdown.js: (formId, optionalForm, optionalItems)
-- [ ] T011 [US1] Implement fallback logic using || operator in src/toMarkdown.js: form = optionalForm || FormApp.openById(formId)
-- [ ] T012 [US1] Implement fallback logic using || operator in src/toMarkdown.js: items = optionalItems || form.getItems()
-- [ ] T013 [US1] Verify all downstream code in exportFormToMarkdown() uses local variables (form, items) instead of re-fetching
+- [X] T010 [P] [US1] Add optional parameters to exportFormToMarkdown() signature in src/toMarkdown.js: (formId, optionalForm, optionalItems)
+- [X] T011 [US1] Implement fallback logic using || operator in src/toMarkdown.js: form = optionalForm || FormApp.openById(formId)
+- [X] T012 [US1] Implement fallback logic using || operator in src/toMarkdown.js: items = optionalItems || form.getItems()
+- [X] T013 [US1] Verify all downstream code in exportFormToMarkdown() uses local variables (form, items) instead of re-fetching
 
 ### Update runExportAll() Orchestration
 
-- [ ] T014 [US1] Add shared data-fetching phase at start of runExportAll() in src/Code.js with try-catch error handling
-- [ ] T015 [US1] Wrap FormApp.openById(FORM_ID) in try-catch and log error if it fails in src/Code.js
-- [ ] T016 [US1] Add early return after fetch error to prevent both exports from proceeding in src/Code.js
-- [ ] T017 [US1] Inline JSON export logic from runExportToJSON() into runExportAll() and pass optional parameters (form, items) in src/Code.js
-- [ ] T018 [US1] Wrap JSON export in independent try-catch to allow Markdown export to proceed if JSON fails in src/Code.js
-- [ ] T019 [US1] Inline Markdown export logic from runExportToMarkdown() into runExportAll() and pass optional parameters (form, items) in src/Code.js
-- [ ] T020 [US1] Wrap Markdown export in independent try-catch to allow partial success in src/Code.js
+- [X] T014 [US1] Add shared data-fetching phase at start of runExportAll() in src/Code.js with try-catch error handling
+- [X] T015 [US1] Wrap FormApp.openById(FORM_ID) in try-catch and log error if it fails in src/Code.js
+- [X] T016 [US1] Add early return after fetch error to prevent both exports from proceeding in src/Code.js
+- [X] T017 [US1] Inline JSON export logic from runExportToJSON() into runExportAll() and pass optional parameters (form, items) in src/Code.js
+- [X] T018 [US1] Wrap JSON export in independent try-catch to allow Markdown export to proceed if JSON fails in src/Code.js
+- [X] T019 [US1] Inline Markdown export logic from runExportToMarkdown() into runExportAll() and pass optional parameters (form, items) in src/Code.js
+- [X] T020 [US1] Wrap Markdown export in independent try-catch to allow partial success in src/Code.js
 
 ### Manual Testing (User Story 1)
 
@@ -102,9 +102,9 @@ This document breaks down the implementation of the export redundancy optimizati
 
 ### Verify Backward Compatibility
 
-- [ ] T028 [P] [US2] Verify runExportToJSON() in src/Code.js still calls exportFormToJson(FORM_ID) with single parameter (no optional params)
-- [ ] T029 [P] [US2] Verify runExportToMarkdown() in src/Code.js still calls exportFormToMarkdown(FORM_ID) with single parameter (no optional params)
-- [ ] T030 [US2] Confirm no signature changes to runExportToJSON() or runExportToMarkdown() entry point functions
+- [X] T028 [P] [US2] Verify runExportToJSON() in src/Code.js still calls exportFormToJson(FORM_ID) with single parameter (no optional params)
+- [X] T029 [P] [US2] Verify runExportToMarkdown() in src/Code.js still calls exportFormToMarkdown(FORM_ID) with single parameter (no optional params)
+- [X] T030 [US2] Confirm no signature changes to runExportToJSON() or runExportToMarkdown() entry point functions
 
 ### Manual Testing (User Story 2)
 
@@ -135,16 +135,16 @@ This document breaks down the implementation of the export redundancy optimizati
 
 ### Architecture Review
 
-- [ ] T036 [P] [US3] Verify src/exportForm.js has no imports or references to toMarkdown.js
-- [ ] T037 [P] [US3] Verify src/toMarkdown.js has no imports or references to exportForm.js
-- [ ] T038 [US3] Confirm data sharing happens via explicit parameter passing from Code.js (not via global variables or cross-module calls)
-- [ ] T039 [US3] Review Constitution Principle V compliance: confirm modules remain self-contained
+- [X] T036 [P] [US3] Verify src/exportForm.js has no imports or references to toMarkdown.js
+- [X] T037 [P] [US3] Verify src/toMarkdown.js has no imports or references to exportForm.js
+- [X] T038 [US3] Confirm data sharing happens via explicit parameter passing from Code.js (not via global variables or cross-module calls)
+- [X] T039 [US3] Review Constitution Principle V compliance: confirm modules remain self-contained
 
 ### Documentation Update
 
-- [ ] T040 [US3] Update CLAUDE.md Architecture section to document the parameter-based refactoring pattern
-- [ ] T041 [US3] Update CLAUDE.md to note the optimization applies only to runExportAll() not individual exports
-- [ ] T042 [US3] Add comment in src/Code.js above runExportAll() explaining the shared data-fetching optimization
+- [X] T040 [US3] Update CLAUDE.md Architecture section to document the parameter-based refactoring pattern
+- [X] T041 [US3] Update CLAUDE.md to note the optimization applies only to runExportAll() not individual exports
+- [X] T042 [US3] Add comment in src/Code.js above runExportAll() explaining the shared data-fetching optimization
 
 **User Story 3 Completion Criteria**:
 - ✅ No cross-module dependencies introduced
@@ -164,19 +164,19 @@ This document breaks down the implementation of the export redundancy optimizati
 - [ ] T043 Test with small form (5 items) and verify both exports complete successfully
 - [ ] T044 Test with large form (50+ items) and verify both exports complete successfully and performance improved
 - [ ] T045 Test partial failure scenario: modify exportFormToJson to throw error and verify Markdown export still succeeds
-- [ ] T046 Verify all defensive programming patterns (typeof checks, try-catch) preserved in refactored code
+- [X] T046 Verify all defensive programming patterns (typeof checks, try-catch) preserved in refactored code
 
 ### Code Quality
 
-- [ ] T047 Review all three modified files (Code.js, exportForm.js, toMarkdown.js) for code clarity and comments
-- [ ] T048 Verify no hardcoded IDs introduced (template placeholders {{FORM_ID}} preserved in source files)
+- [X] T047 Review all three modified files (Code.js, exportForm.js, toMarkdown.js) for code clarity and comments
+- [X] T048 Verify no hardcoded IDs introduced (template placeholders {{FORM_ID}} preserved in source files)
 - [ ] T049 Run npm run push and verify deployment succeeds without errors
-- [ ] T050 Verify .gitignore still excludes tmp/dist/ directory (no build artifacts committed)
+- [X] T050 Verify .gitignore still excludes tmp/dist/ directory (no build artifacts committed)
 
 ### Final Documentation
 
 - [ ] T051 Update README.md if needed to reflect performance optimization (optional)
-- [ ] T052 Create summary of changes for project log or changelog: API call reduction, performance improvement, backward compatibility maintained
+- [X] T052 Create summary of changes for project log or changelog: API call reduction, performance improvement, backward compatibility maintained
 
 **Phase 5 Completion Criteria**:
 - ✅ All manual tests pass across all scenarios
