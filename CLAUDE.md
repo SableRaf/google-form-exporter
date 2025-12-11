@@ -96,6 +96,31 @@ Global configuration at the top of [src/Code.js](src/Code.js):
 **Helper in both [src/exportForm.js](src/exportForm.js) and [src/toMarkdown.js](src/toMarkdown.js)**:
 - `snakeCaseToCamelCase(s)` - Converts SNAKE_CASE to camelCase for Apps Script method names
 
+## Coding Standards
+
+### Comments Hygiene
+- All functions must have JSDoc-style comments
+- Comments must explain "why" not just "what"
+- Comments must describe the current code state only
+- Never reference previous implementations, old functions, or deleted code
+- Avoid terms like "optimized", "improved", or "fixed" that imply historical changes
+- Historical context belongs in git commits, PRs, or changelogs, not code comments
+
+Example of good vs bad comments:
+```javascript
+// Bad: References removed code
+/**
+ * Export form (optimized to fetch form data once)
+ * 50% reduction: 4 calls → 2 calls
+ */
+
+// Good: Describes current implementation
+/**
+ * Export form as JSON and Markdown
+ * Fetches form data once and passes to both export functions
+ */
+```
+
 ## Key Design Patterns
 
 ### Type Handling
