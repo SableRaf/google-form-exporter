@@ -1,10 +1,12 @@
 /**
- * Exports a Google Form to a Markdown string.
+ * Exports a Google Form to a Markdown formatted string.
+ * Supports optional pre-fetched data to optimize performance when exporting multiple formats.
+ * Handles multi-page forms with section navigation and converts rich text formatting to Markdown.
  *
- * @param {string} formId - Google Form ID
- * @param {FormApp.Form} optionalForm - Pre-fetched form object (optimization)
- * @param {FormApp.Item[]} optionalItems - Pre-fetched items array (optimization)
- * @return {string} Markdown representation of the form.
+ * @param {string} formId - Google Form ID to export
+ * @param {FormApp.Form} [optionalForm] - Pre-fetched form object (optional, for performance optimization)
+ * @param {FormApp.Item[]} [optionalItems] - Pre-fetched items array (optional, for performance optimization)
+ * @return {string} Markdown representation of the form with formatted questions and navigation
  */
 function exportFormToMarkdown(formId, optionalForm, optionalItems) {
   // Use pre-fetched data if provided, otherwise fetch (backward compatible)
@@ -99,12 +101,14 @@ function exportFormToMarkdown(formId, optionalForm, optionalItems) {
 }
 
 /**
- * Gets the default navigation for a page break section
+ * Gets the default navigation behavior for a page break section.
+ * Returns a human-readable description of where the section leads by default
+ * (e.g., "Continue to next section", "Submit form", or specific section navigation).
  *
- * @param {FormApp.Item} pageBreakItem - The page break item
- * @param {FormApp.Item[]} allItems - All form items
- * @param {Object} sectionMap - Map of section indices to info
- * @return {string} Default navigation description
+ * @param {FormApp.Item} pageBreakItem - The page break item to get navigation for
+ * @param {FormApp.Item[]} allItems - All form items for resolving navigation targets
+ * @param {Object} sectionMap - Map of item indices to section information
+ * @return {string} Human-readable default navigation description, or empty string if none
  */
 function getDefaultSectionNavigation(pageBreakItem, allItems, sectionMap) {
   var typedItem = pageBreakItem.asPageBreakItem();
@@ -139,11 +143,12 @@ function getDefaultSectionNavigation(pageBreakItem, allItems, sectionMap) {
 }
 
 /**
- * Builds a map of page break item indices to section information
- * This helps us reference sections when showing navigation.
+ * Builds a map of page break item indices to section information.
+ * This mapping enables section references in navigation links throughout the form.
+ * Each page break item is tracked with its section number and title.
  *
- * @param {FormApp.Item[]} items
- * @return {Object} Map with keys as item index, values as section info
+ * @param {FormApp.Item[]} items - Array of all form items
+ * @return {Object} Map with keys as item index, values as objects containing section number and title
  */
 function buildSectionMap(items) {
   var sectionMap = {};
@@ -163,13 +168,15 @@ function buildSectionMap(items) {
 }
 
 /**
- * Gets the section reference for a page navigation item
+ * Gets the navigation text for a choice-specific page navigation.
+ * Returns formatted text indicating where selecting this choice leads
+ * (e.g., "→ Submit form" or "→ Go to section 2 (Contact Info)").
  *
- * @param {FormApp.PageNavigationType} navType
- * @param {FormApp.Item} navItem - The item to navigate to (or null)
- * @param {FormApp.Item[]} allItems - All form items
- * @param {Object} sectionMap - Map of section indices to info
- * @return {string} Navigation description or empty string
+ * @param {FormApp.PageNavigationType} navType - Type of navigation (CONTINUE, SUBMIT, or GO_TO_PAGE)
+ * @param {FormApp.Item} navItem - The target page break item to navigate to (or null)
+ * @param {FormApp.Item[]} allItems - All form items for resolving navigation targets
+ * @param {Object} sectionMap - Map of item indices to section information
+ * @return {string} Formatted navigation text to append to choice, or empty string for default (CONTINUE) behavior
  */
 function getNavigationText(navType, navItem, allItems, sectionMap) {
   if (navType === FormApp.PageNavigationType.CONTINUE) {
@@ -200,12 +207,14 @@ function getNavigationText(navType, navItem, allItems, sectionMap) {
 }
 
 /**
- * Renders the body of a question (options, scale info, etc.) as markdown lines.
+ * Renders the body content of a form item as Markdown lines.
+ * Handles different item types: TEXT, PARAGRAPH_TEXT, MULTIPLE_CHOICE, CHECKBOX,
+ * LIST, SCALE, and others. Includes choice options, scale bounds, and navigation links.
  *
- * @param {FormApp.Item} item
- * @param {FormApp.ItemType} type
- * @param {Object} sectionMap - Map of section information
- * @return {string[]} lines
+ * @param {FormApp.Item} item - The form item to render
+ * @param {FormApp.ItemType} type - The type of the form item
+ * @param {Object} sectionMap - Map of item indices to section information for navigation links
+ * @return {string[]} Array of Markdown formatted strings representing the item body
  */
 function renderItemBodyMarkdown(item, type, sectionMap) {
   var lines = [];
@@ -294,11 +303,12 @@ function renderItemBodyMarkdown(item, type, sectionMap) {
 }
 
 /**
- * Converts Google Forms rich text (HTML-like) to Markdown.
- * Handles bold, italic, underline, and links.
+ * Converts Google Forms rich text (HTML-like tags) to Markdown format.
+ * Handles bold (<b>), italic (<i>), underline (<u>), links (<a>), and line breaks (<br>).
+ * Note: Underline formatting is preserved as HTML since Markdown has no native underline syntax.
  *
- * @param {string} text
- * @return {string} Markdown formatted text
+ * @param {string} text - The HTML-like text from Google Forms to convert
+ * @return {string} Markdown formatted text with converted tags
  */
 function convertToMarkdown(text) {
   if (!text) return "";
@@ -324,11 +334,12 @@ function convertToMarkdown(text) {
 }
 
 /**
- * Converts a SNAKE_CASE string to a camelCase string.
- * Reuses the same helper as in ExportForm.gs.
+ * Converts a SNAKE_CASE string to camelCase format.
+ * Used to convert FormApp item type names to method names (e.g., "AS_TEXT_ITEM" → "asTextItem").
+ * This is the same helper function used in exportForm.js for consistency.
  *
- * @param {string} s in SNAKE_CASE
- * @returns {string} the camelCase version of that string.
+ * @param {string} s - The SNAKE_CASE string to convert
+ * @return {string} The camelCase version of the input string
  */
 function snakeCaseToCamelCase(s) {
   return s.toLowerCase().replace(/(\_\w)/g, function(m) {

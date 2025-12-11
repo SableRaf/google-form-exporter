@@ -25,11 +25,12 @@
 
 /**
  * Converts the Form with the given ID into a JSON object.
+ * Supports optional pre-fetched data to optimize performance when exporting multiple formats.
  *
- * @param {string} formId - Google Form ID
- * @param {FormApp.Form} optionalForm - Pre-fetched form object (optimization)
- * @param {FormApp.Item[]} optionalItems - Pre-fetched items array (optimization)
- * @return {Object} JSON representation of the form.
+ * @param {string} formId - Google Form ID to export
+ * @param {FormApp.Form} [optionalForm] - Pre-fetched form object (optional, for performance optimization)
+ * @param {FormApp.Item[]} [optionalItems] - Pre-fetched items array (optional, for performance optimization)
+ * @return {Object} JSON representation of the form with metadata, items array, and count
  */
 function exportFormToJson(formId, optionalForm, optionalItems) {
   // Use pre-fetched data if provided, otherwise fetch (backward compatible)
@@ -46,9 +47,11 @@ function exportFormToJson(formId, optionalForm, optionalItems) {
 }
 
 /**
- * Returns the form metadata object for the given Form object.
- * @param {FormApp.Form} form
- * @returns {Object} object of form metadata.
+ * Extracts and returns metadata from a Google Form object.
+ * Includes title, description, URLs, editors, and configuration settings.
+ *
+ * @param {FormApp.Form} form - The Google Form object to extract metadata from
+ * @return {Object} Object containing form metadata including title, id, description, publishedUrl, editorEmails, count, confirmationMessage, and customClosedFormMessage
  */
 function getFormMetadata(form) {
   return {
@@ -66,9 +69,13 @@ function getFormMetadata(form) {
 }
 
 /**
- * Returns an Object for a given Item.
- * @param {FormApp.Item} item
- * @returns {Object} object for the given item.
+ * Converts a Google Form item into a JSON object representation.
+ * Uses type downcasting to access type-specific properties (e.g., choices, scale bounds).
+ * Handles all form item types including TEXT, PARAGRAPH_TEXT, MULTIPLE_CHOICE, CHECKBOX,
+ * LIST, SCALE, IMAGE, PAGE_BREAK, and VIDEO.
+ *
+ * @param {FormApp.Item} item - The form item to convert
+ * @return {Object} Object representing the item with properties: type, title, helpText, id, index, isRequired, points, and type-specific fields
  */
 function itemToObject(item) {
   var data = {};
@@ -157,9 +164,11 @@ function itemToObject(item) {
 }
 
 /**
- * Converts a SNAKE_CASE string to a camelCase string.
- * @param {string} s in SNAKE_CASE
- * @returns {string} the camelCase version of that string.
+ * Converts a SNAKE_CASE string to camelCase format.
+ * Used to convert FormApp item type names to method names (e.g., "AS_TEXT_ITEM" → "asTextItem").
+ *
+ * @param {string} s - The SNAKE_CASE string to convert
+ * @return {string} The camelCase version of the input string
  */
 function snakeCaseToCamelCase(s) {
   return s.toLowerCase().replace(/(\_\w)/g, function(m) {

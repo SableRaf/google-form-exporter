@@ -3,8 +3,11 @@ var FORM_ID = "{{FORM_ID}}";
 var EXPORT_FOLDER_ID = "{{EXPORT_FOLDER_ID}}";
 
 /**
- * Export form as JSON and Markdown
- * This function fetches the form and items once, then passes them to both exporters.
+ * Exports form as both JSON and Markdown formats.
+ * This function optimizes performance by fetching the form and items once,
+ * then passing them to both exporters to avoid redundant API calls.
+ *
+ * @return {void}
  */
 function runExportAll() {
   // Shared data-fetching phase - fetch once and reuse for both exports
@@ -52,7 +55,10 @@ function runExportAll() {
 }
 
 /**
- * Export form as JSON
+ * Exports form as JSON format and saves to Google Drive.
+ * Uses the global FORM_ID configuration to fetch the form data.
+ *
+ * @return {void}
  */
 function runExportToJSON() {
   var json = exportFormToJson(FORM_ID);
@@ -68,7 +74,10 @@ function runExportToJSON() {
 }
 
 /**
- * Export form as Markdown
+ * Exports form as Markdown format and saves to Google Drive.
+ * Uses the global FORM_ID configuration to fetch the form data.
+ *
+ * @return {void}
  */
 function runExportToMarkdown() {
   var md = exportFormToMarkdown(FORM_ID);
@@ -81,7 +90,14 @@ function runExportToMarkdown() {
 }
 
 /**
- * Save content to Google Drive folder
+ * Saves content to the configured Google Drive folder.
+ * Uses the global EXPORT_FOLDER_ID to determine the target folder.
+ * Logs success or error messages to the Apps Script Logger.
+ *
+ * @param {string} fileName - Name of the file to create
+ * @param {string} content - Content to write to the file
+ * @return {void}
+ * @private
  */
 function saveToDrive_(fileName, content) {
   if (!EXPORT_FOLDER_ID) return;
