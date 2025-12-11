@@ -149,3 +149,10 @@ Exported files use timestamps in format: `yyyy-MM-dd_HH-mm-ss`
 - Some item types may not implement all methods (e.g., `isRequired()`) - code handles this defensively
 - The "points" field in JSON is kept for compatibility but always set to 0
 - Markdown export cannot perfectly represent all form features (e.g., underline formatting is kept as HTML)
+
+## Active Technologies
+- JavaScript (ES5/ES6) - Google Apps Script V8 runtime + Google Apps Script built-in APIs (FormApp, DriveApp, Utilities) - no external dependencies (001-reduce-export-redundancy)
+- Google Drive (output files only, no data storage layer) (001-reduce-export-redundancy)
+
+## Recent Changes
+- 001-reduce-export-redundancy: Added JavaScript (ES5/ES6) - Google Apps Script V8 runtime + Google Apps Script built-in APIs (FormApp, DriveApp, Utilities) - no external dependencies
