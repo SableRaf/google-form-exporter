@@ -30,7 +30,7 @@ function runExportAll() {
     var stringified = JSON.stringify(json, null, 2);
 
     Logger.log("Total items exported: " + json.count);
-    Logger.log(stringified.split('\n').slice(0, 5).join('\n') + '\n[' + (stringified.split('\n').length - 5) + ' more lines...]');
+    Logger.log(stringified.split('\n').slice(0, 5).join('\n') + '\n\n[' + (stringified.split('\n').length - 5) + ' more lines...]');
 
     var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
     var fileName = "form_export_" + timestamp + ".json";
@@ -43,7 +43,7 @@ function runExportAll() {
   // Export to Markdown (reusing fetched data)
   try {
     var md = exportFormToMarkdown(FORM_ID, form, items);
-    Logger.log(md.split('\n').slice(0, 5).join('\n') + '\n[' + (md.split('\n').length - 5) + ' more lines...]');
+    Logger.log(md.split('\n').slice(0, 5).join('\n') + '\n\n[' + (md.split('\n').length - 5) + ' more lines...]');
 
     var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
     var fileName = "form_export_" + timestamp + ".md";
@@ -105,8 +105,8 @@ function saveToDrive_(fileName, content) {
   try {
     var folder = DriveApp.getFolderById(EXPORT_FOLDER_ID);
     folder.createFile(fileName, content, "text/plain");
-    Logger.log("Saved to Drive: " + fileName);
-    Logger.log("Link: https://drive.google.com/drive/folders/" + EXPORT_FOLDER_ID + "/" + fileName);
+    Logger.log("Saved to Drive: " + fileName + " at:");
+    Logger.log("https://drive.google.com/drive/folders/" + EXPORT_FOLDER_ID);
   } catch (e) {
     Logger.log("Error saving to Drive: " + e.message);
   }
