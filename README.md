@@ -43,13 +43,7 @@ cd google-form-exporter
 npm install
 ```
 
-### 3. Create a Google Apps Script project
-
-1. Go to [script.google.com](https://script.google.com)
-2. Create a new project
-3. Copy the Script ID from the URL (it looks like: `https://script.google.com/home/projects/YOUR_SCRIPT_ID_HERE/edit`)
-
-### 4. Configure environment variables
+### 3. Configure environment variables
 
 Copy the example environment file:
 
@@ -66,6 +60,12 @@ FORM_ID=your_form_id_here
 # Get this from your Google Drive folder URL (the folder ID in the URL)
 EXPORT_FOLDER_ID=your_folder_id_here
 ```
+
+### 4. Create a Google Apps Script project
+
+1. Go to [script.google.com](https://script.google.com)
+2. Create a new project
+3. Copy the Script ID from the URL (it looks like: `https://script.google.com/home/projects/YOUR_SCRIPT_ID_HERE/edit`)
 
 ### 5. Configure clasp
 
