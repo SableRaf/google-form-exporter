@@ -114,6 +114,20 @@ function itemToObject(item) {
         data.choices = choices.map(function(choice) {
           return choice.getValue();
         });
+
+        if (
+          itemType !== FormApp.ItemType.CHECKBOX &&
+          (itemType === FormApp.ItemType.LIST || itemType === FormApp.ItemType.MULTIPLE_CHOICE)
+        ) {
+          var choiceNavigation = choices.map(choiceToNavigationObject_);
+          var hasChoiceNavigation = choiceNavigation.some(function(choiceNav) {
+            return choiceNav !== null;
+          });
+
+          if (hasChoiceNavigation) {
+            data.choiceNavigation = choiceNavigation;
+          }
+        }
       } catch (e) {
         Logger.log("Error getting choices for item " + data.id + ": " + e.message);
         data.choices = [];
@@ -141,6 +155,8 @@ function itemToObject(item) {
       var imageBlob = typedItem.getImage();
       data.imageBlob = {
         dataAsString: imageBlob.getDataAsString(),
+        contentType: imageBlob.getContentType(),
+        dataBase64: Utilities.base64Encode(imageBlob.getBytes()),
         name: imageBlob.getName(),
         isGoogleType: imageBlob.isGoogleType()
       };
@@ -148,6 +164,18 @@ function itemToObject(item) {
 
     case FormApp.ItemType.PAGE_BREAK:
       data.pageNavigationType = typedItem.getPageNavigationType().toString();
+      if (typedItem.getPageNavigationType() === FormApp.PageNavigationType.GO_TO_PAGE) {
+        try {
+          var goToPage = typedItem.getGoToPage();
+          if (goToPage) {
+            data.goToPageId = goToPage.getId();
+            data.goToPageTitle = goToPage.getTitle();
+            data.goToPageIndex = goToPage.getIndex();
+          }
+        } catch (e) {
+          Logger.log("Error getting page break target for item " + data.id + ": " + e.message);
+        }
+      }
       break;
 
     default:
@@ -176,6 +204,39 @@ function snakeCaseToCamelCase(s) {
   });
 }
 
+/**
+ * Captures choice-level navigation metadata for round-tripping section logic.
+ * Returns null for choices that use the default CONTINUE behavior.
+ *
+ * @param {FormApp.Choice} choice - The choice to inspect
+ * @return {Object|null} Navigation object or null when the choice has no explicit routing
+ */
+function choiceToNavigationObject_(choice) {
+  try {
+    var pageNavigationType = choice.getPageNavigationType();
+    if (!pageNavigationType || pageNavigationType === FormApp.PageNavigationType.CONTINUE) {
+      return null;
+    }
+
+    var result = {
+      pageNavigationType: pageNavigationType.toString()
+    };
+
+    if (pageNavigationType === FormApp.PageNavigationType.GO_TO_PAGE) {
+      var goToPage = choice.getGotoPage();
+      if (goToPage) {
+        result.goToPageId = goToPage.getId();
+        result.goToPageTitle = goToPage.getTitle();
+        result.goToPageIndex = goToPage.getIndex();
+      }
+    }
+
+    return result;
+  } catch (e) {
+    Logger.log("Error getting choice navigation: " + e.message);
+    return null;
+  }
+}
 
 
 

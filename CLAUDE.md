@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Google Apps Script project that exports Google Forms to JSON and Markdown formats. The exported files are saved to Google Drive.
+This is a Google Apps Script project that exports Google Forms to JSON and Markdown formats, and can import a saved JSON export into an existing Google Form. The exported files are saved to Google Drive.
 
 ## Technology Stack
 
@@ -29,8 +29,10 @@ This project uses `clasp` (Command Line Apps Script Projects) for deployment.
 2. Edit `.env` and add your configuration:
    ```
    SCRIPT_ID=your_script_id_here
-   FORM_ID=your_form_id_here
+   SOURCE_FORM_ID=your_source_form_id_here
+   TARGET_FORM_ID=your_target_form_id_here
    EXPORT_FOLDER_ID=your_folder_id_here
+   IMPORT_FILE_ID=your_import_json_file_id_here
    ```
 
 3. Install dependencies:
@@ -46,27 +48,32 @@ This project uses `clasp` (Command Line Apps Script Projects) for deployment.
 - **Pull from Google Apps Script**: `npm run pull`
 - **Open in Apps Script editor**: `npm run open`
 
-Configuration values (script ID, form ID, folder ID) are injected from `.env` during deployment. Source files are in the [src/](src/) directory.
+Configuration values are injected from `.env` during deployment. Source files are in the [src/](src/) directory.
 
 ## Architecture
 
 ### Entry Points ([src/Code.js](src/Code.js))
 
-Three main functions can be run from the Apps Script editor:
+Four main functions can be run from the Apps Script editor:
 
 1. **runExportAll()** - Exports both JSON and Markdown formats (optimized to fetch form data once)
 2. **runExportToJSON()** - Exports only JSON format
 3. **runExportToMarkdown()** - Exports only Markdown format
+4. **runImportFromJson()** - Replaces the configured target form with items from a saved JSON export
 
 Global configuration at the top of [src/Code.js](src/Code.js):
-- `FORM_ID` - The Google Form to export (injected from `.env` during deployment)
+- `SOURCE_FORM_ID` - The Google Form to export (injected from `.env` during deployment)
+- `TARGET_FORM_ID` - The existing Google Form to replace during import (injected from `.env` during deployment)
 - `EXPORT_FOLDER_ID` - Google Drive folder for exported files (injected from `.env` during deployment)
+- `IMPORT_FILE_ID` - Google Drive file ID of the JSON export to import (injected from `.env` during deployment)
 
 #### Performance Optimization
 
 **runExportAll() optimization**: This function uses parameter-based refactoring to eliminate redundant API calls. Instead of calling `FormApp.openById()` and `form.getItems()` twice (once per export), it fetches the data once and passes it to both export functions via optional parameters. This reduces API calls by 50% (from 4 to 2) when exporting both formats.
 
 **Individual exports remain unchanged**: `runExportToJSON()` and `runExportToMarkdown()` continue to work independently, calling their respective export functions with only the form ID. The export functions use fallback logic (`||` operator) to fetch data when optional parameters are not provided, maintaining full backward compatibility.
+
+**Import replaces an existing form**: `runImportFromJson()` reads the JSON file from `IMPORT_FILE_ID`, clears the form at `TARGET_FORM_ID`, recreates items in index order, and applies properties in a second pass so section navigation can resolve after all page breaks exist.
 
 ### Core Export Modules
 
@@ -76,8 +83,20 @@ Global configuration at the top of [src/Code.js](src/Code.js):
   - Falls back to fetching data if optional parameters not provided
 - `getFormMetadata(form)` - Extracts form-level metadata (title, description, editors, etc.)
 - `itemToObject(item)` - Converts form items to JSON objects
+- Exports choice-level navigation for MULTIPLE_CHOICE and LIST items when present
+- Exports page-break navigation targets and base64 image data for round-tripping
 - Handles all form item types: TEXT, PARAGRAPH_TEXT, MULTIPLE_CHOICE, CHECKBOX, LIST, SCALE, IMAGE, PAGE_BREAK, VIDEO
 - Uses type downcasting pattern via `AS_*_ITEM` methods to access type-specific properties
+
+**[src/importForm.js](src/importForm.js)** - JSON Import
+- `importFormFromJson_(targetFormId, jsonObject)` - Main importer orchestrator
+- `clearFormItems_(form)` - Deletes existing items in reverse order before rebuild
+- `createItemOfType_(form, typeString)` - Maps exported type strings to `form.addXxxItem()` calls
+- `applyItemProperties_(newItem, jsonObj, pageBreakMaps)` - Applies item settings after all items exist
+- `buildChoices_(typedItem, jsonObj, pageBreakMaps)` - Recreates choices and choice-level navigation
+- `resolvePageBreakTarget_(nav, pageBreakMaps)` - Resolves exported page-break targets by ID, index, then title
+- `navigationTypeFromString_(str)` - Converts exported strings back to `FormApp.PageNavigationType`
+- `getTypedItem_(item)` - Handles downcasting for items returned by different FormApp APIs
 
 **[src/toMarkdown.js](src/toMarkdown.js)** - Markdown Export
 - `exportFormToMarkdown(formId, optionalForm, optionalItems)` - Main entry point for Markdown export
@@ -92,6 +111,7 @@ Global configuration at the top of [src/Code.js](src/Code.js):
 
 **Helper in [src/Code.js](src/Code.js)**:
 - `saveToDrive_(fileName, content)` - Saves content to Google Drive with timestamp
+- `isMissingConfigValue_(value)` - Detects blank or uninjected config values before import runs
 
 **Helper in both [src/exportForm.js](src/exportForm.js) and [src/toMarkdown.js](src/toMarkdown.js)**:
 - `snakeCaseToCamelCase(s)` - Converts SNAKE_CASE to camelCase for Apps Script method names
@@ -126,8 +146,8 @@ Example of good vs bad comments:
 ### Type Handling
 Google Apps Script uses a downcasting pattern to access type-specific properties:
 ```javascript
-var itemTypeConstructorName = snakeCaseToCamelCase("AS_" + itemType.toString() + "_ITEM");
-var typedItem = item[itemTypeConstructorName]();
+  var itemTypeConstructorName = snakeCaseToCamelCase("AS_" + itemType.toString() + "_ITEM");
+  var typedItem = item[itemTypeConstructorName]();
 ```
 This converts `FormApp.ItemType.MULTIPLE_CHOICE` → `asMultipleChoiceItem()` method.
 
@@ -157,8 +177,10 @@ This is necessary because not all item types implement all methods.
 Duplicate the [.env.example](.env.example) file to `.env` and fill in your values.
 
 Configuration is managed via environment variables in the `.env` file:
-- `FORM_ID` - Your target Google Form ID (injected into [src/Code.js](src/Code.js))
+- `SOURCE_FORM_ID` - Google Form ID to export (required)
+- `TARGET_FORM_ID` - Existing Google Form ID to replace during import (optional for export-only usage)
 - `EXPORT_FOLDER_ID` - Your Google Drive folder ID for exports (injected into [src/Code.js](src/Code.js))
+- `IMPORT_FILE_ID` - Google Drive file ID of the JSON export to import (optional for export-only usage)
 
 These values are automatically injected when you run `npm run push`.
 
@@ -184,6 +206,11 @@ Exported files use timestamps in format: `yyyy-MM-dd_HH-mm-ss`
 - Some item types may not implement all methods (e.g., `isRequired()`) - code handles this defensively
 - The "points" field in JSON is kept for compatibility but always set to 0
 - Markdown export cannot perfectly represent all form features (e.g., underline formatting is kept as HTML)
+- Import is replace-only: it clears the target form before recreating items from JSON
+- Old JSON exports without navigation fields still import, but section routing may degrade with warnings
+- GRID and CHECKBOX_GRID items are recreated without rows and columns because those fields are not exported
+- IMAGE items from older JSON exports without `dataBase64` and `contentType` are recreated without image content
+- VIDEO items are skipped during import because the export format cannot recover the source video URL
 
 ## Active Technologies
 - JavaScript (ES5/ES6) - Google Apps Script V8 runtime + Google Apps Script built-in APIs (FormApp, DriveApp, Utilities) - no external dependencies (001-reduce-export-redundancy)

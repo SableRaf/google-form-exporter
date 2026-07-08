@@ -26,7 +26,7 @@ envContent.split('\n').forEach(line => {
 });
 
 // Validate required variables
-const requiredVars = ['FORM_ID', 'EXPORT_FOLDER_ID'];
+const requiredVars = ['SOURCE_FORM_ID', 'EXPORT_FOLDER_ID'];
 const missingVars = requiredVars.filter(v => !envVars[v]);
 
 if (missingVars.length > 0) {
@@ -58,10 +58,14 @@ srcFiles.forEach(file => {
 // Read and update Code.js in tmp/dist
 const codeJsPath = path.join(distPath, 'Code.js');
 let codeContent = fs.readFileSync(codeJsPath, 'utf8');
-codeContent = codeContent.replace(/var FORM_ID = "{{FORM_ID}}";/g, `var FORM_ID = "${envVars.FORM_ID}";`);
+codeContent = codeContent.replace(/var SOURCE_FORM_ID = "{{SOURCE_FORM_ID}}";/g, `var SOURCE_FORM_ID = "${envVars.SOURCE_FORM_ID}";`);
+codeContent = codeContent.replace(/var TARGET_FORM_ID = "{{TARGET_FORM_ID}}";/g, `var TARGET_FORM_ID = "${envVars.TARGET_FORM_ID || ''}";`);
 codeContent = codeContent.replace(/var EXPORT_FOLDER_ID = "{{EXPORT_FOLDER_ID}}";/g, `var EXPORT_FOLDER_ID = "${envVars.EXPORT_FOLDER_ID}";`);
+codeContent = codeContent.replace(/var IMPORT_FILE_ID = "{{IMPORT_FILE_ID}}";/g, `var IMPORT_FILE_ID = "${envVars.IMPORT_FILE_ID || ''}";`);
 fs.writeFileSync(codeJsPath, codeContent, 'utf8');
 
 console.log('✓ Files copied to tmp/dist and environment variables injected');
-console.log(`  FORM_ID: ${envVars.FORM_ID}`);
+console.log(`  SOURCE_FORM_ID: ${envVars.SOURCE_FORM_ID}`);
+console.log(`  TARGET_FORM_ID: ${envVars.TARGET_FORM_ID || '(not set)'}`);
 console.log(`  EXPORT_FOLDER_ID: ${envVars.EXPORT_FOLDER_ID}`);
+console.log(`  IMPORT_FILE_ID: ${envVars.IMPORT_FILE_ID || '(not set)'}`);
